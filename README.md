@@ -23,6 +23,8 @@ mini-npu-simulator/
 ├─ inspect_data.py
 ├─ test_main.py
 ├─ test_additional.py
+├─ patterns.py
+├─ test_patterns.py
 ├─ VALIDATION.md
 ├─ validation.log
 ├─ docs/
@@ -35,6 +37,8 @@ mini-npu-simulator/
 - inspect_data.py: 데이터 구조와 배열 크기 확인 도구
 - test_main.py: 기본 자동 테스트 및 원본 데이터 회귀 검사
 - test_additional.py: 수치·스키마·파일·콘솔·재현성 추가 검사
+- patterns.py: 홀수 크기의 Cross·X 패턴 생성 및 크기 검증
+- test_patterns.py: 생성 규칙·배열 독립성·생성 모드 통합 테스트
 - VALIDATION.md / validation.log: 배포 전 검증 기록
 - README.md: 실행 방법과 결과 리포트
 - docs/mac-hardware-acceleration.md: CPU SIMD·Pascal CUDA·Tensor Core·NPU 심화 설명
@@ -51,6 +55,7 @@ python main.py
 
 - 1: 사용자 입력 모드
 - 2: data.json 분석 모드
+- 3: 생성 패턴 분석
 - 0: 종료
 
 data.json은 main.py와 같은 폴더에 둡니다. 프로그램은 현재 터미널 위치가 아닌 main.py 위치를 기준으로 파일을 찾습니다.
@@ -250,9 +255,7 @@ Windows / Python 3.15.2에서 2026-11-15에 직접 측정한 수정본의 한 �
 
 ## 9. 구현 범위
 
-필수 기능을 우선 구현했습니다.
-
-선택 과제인 1차원 배열 최적화 및 범용 패턴 생성기는 현재 제출 범위에 포함하지 않았습니다.
+필수 기능과 보너스 패턴 생성기를 구현했습니다. 1차원 배열을 이용한 MAC 최적화와 전후 성능 비교는 다음 단계에서 진행합니다.
 
 ## 10. 과제 목표 6개 해설
 
@@ -363,3 +366,54 @@ MAC은 계산 패턴이며 NPU에만 존재하는 명령이 아니다. Python의
 - NVIDIA 행렬 곱 성능 안내: https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html
 - NVIDIA A100 아키텍처: https://images.nvidia.com/aem-dam/en-zz/Solutions/data-center/nvidia-ampere-architecture-whitepaper.pdf
 - Google TPU 구조: https://docs.cloud.google.com/tpu/docs/system-architecture-tpu-vm
+
+## 14. 보너스: 패턴 생성기
+
+### 구현 목적과 사용법
+
+Cross·X 패턴을 직접 입력하는 대신 크기 N과 패턴 종류를 선택해 자동 생성한다. 메인 메뉴에서 `3. 생성 패턴 분석`을 선택하고 크기와 패턴 종류를 입력하면, 생성한 패턴·두 필터의 점수·판정·성능 표를 확인할 수 있다.
+
+기존의 3×3 수동 입력과 JSON 분석 모드는 유지했다. 생성 모드에서는 자동 생성한 이진 Cross·X를 비교용 필터로 사용하며, 원본 data.json의 가중치 필터는 변경하지 않는다.
+
+### 생성 규칙과 입력 정책
+
+- 크기: 3 이상의 홀수 정수
+- Cross: 가운데 행 또는 가운데 열을 1.0으로 설정
+- X: 두 대각선을 1.0으로 설정
+- 나머지 위치: 0.0
+- 잘못된 크기나 패턴 선택: 오류 안내 후 재입력
+- 25보다 큰 배열: 전체 패턴 출력만 생략하고 계산과 성능 분석은 수행
+
+짝수는 중심 행·열의 정의가 하나로 정해지지 않고, N=1은 Cross와 X가 같아지므로 현재 생성기 범위에서 제외했다. 크기 상한은 구현하지 않았으며, 큰 입력에서는 배열 저장 공간과 반복 측정 비용이 증가한다.
+
+### 검증 결과
+
+2026-11-15 Windows / Python 3.15.2에서 생성기·생성 모드 테스트 15개와 전체 테스트 80개가 모두 통과했다. 전체 테스트 실행 시간은 0.174초이며, 개별 MAC 함수의 실행 시간이 아니다.
+
+자동 검증 항목:
+
+- 크기와 숫자 형식 검증
+- 3·5·13·25 크기의 배열과 생성 규칙
+- 각 패턴의 활성 위치 수 2N-1개
+- 두 패턴의 겹침이 중심 한 곳인지 확인
+- 행끼리 또는 호출 결과끼리 배열이 공유되지 않는지 확인
+- 생성한 패턴과 기존 MAC 함수의 연동
+- 생성 모드의 판정·재입력·메뉴 복귀
+- 큰 배열의 화면 출력 생략
+- 기존 원본 JSON 판정 결과 유지
+
+### 수동 실행 예시
+
+5×5 X를 생성한 결과:
+
+```text
+Cross 점수: 1.0
+X 점수: 9.0
+판정: X | 생성한 패턴: X
+```
+
+필터 하나에 대한 MAC 호출을 1,000회 측정한 평균 시간은 0.002305ms였다. 이는 해당 실행의 측정값이며, 다른 시점의 성능 표와 환경을 통제한 비교는 아니다.
+
+### 다음 단계
+
+생성한 패턴을 동일 입력으로 활용해 2차원 MAC과 1차원 MAC을 비교한다. 계산 결과의 동등성을 먼저 검증하고, 계산만의 시간과 평탄화 변환을 포함한 시간을 구분해 측정할 예정이다.

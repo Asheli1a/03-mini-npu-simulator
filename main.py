@@ -3,6 +3,7 @@ import math
 import re
 from time import perf_counter_ns
 from pathlib import Path
+from patterns import generate_cross, generate_x, validate_pattern_size
 
 class CalculationError(ValueError):
     """유효한 입력의 계산 중 발생한 수치 오류."""
@@ -488,11 +489,73 @@ def run_json_performance(data):
     print_performance_table(rows)
     return rows
 
+def read_generated_size():
+    """3 이상의 홀수 크기를 입력받는다."""
+    while True:
+        text = input("크기 N (3 이상의 홀수, 예: 3, 5, 13, 25): ").strip()
+
+        try:
+            size = int(text)
+        except ValueError:
+            print("입력 오류: 정수를 입력하세요.")
+            continue
+
+        try:
+            return validate_pattern_size(size)
+        except ValueError as error:
+            print(f"입력 오류: {error}")
+
+
+def run_generated_mode():
+    size = read_generated_size()
+
+    while True:
+        choice = input("패턴 선택 (1: Cross, 2: X): ").strip()
+
+        if choice in ("1", "2"):
+            break
+
+        print("입력 오류: 1 또는 2를 입력하세요.")
+
+    filter_cross = generate_cross(size)
+    filter_x = generate_x(size)
+
+    if choice == "1":
+        pattern = filter_cross
+        expected = "Cross"
+    else:
+        pattern = filter_x
+        expected = "X"
+
+    print(f"\n=== 생성 패턴 분석: {size}×{size} ===")
+    print("필터: 자동 생성한 이진 Cross / X")
+    print("원본 data.json의 가중치 필터와는 별개입니다.")
+
+    if size <= 25:
+        print_matrix("생성 패턴", pattern)
+    else:
+        print("큰 배열의 전체 출력은 생략합니다.")
+
+    try:
+        score_cross = calculate_score(pattern, filter_cross)
+        score_x = calculate_score(pattern, filter_x)
+        prediction = decide_label(score_cross, score_x)
+        performance = benchmark_mac(pattern, filter_cross)
+    except (ValueError, OverflowError) as error:
+        print(f"\n계산 오류: {error}")
+        return
+
+    print(f"\nCross 점수: {score_cross!r}")
+    print(f"X 점수: {score_x!r}")
+    print(f"판정: {prediction} | 생성한 패턴: {expected}")
+    print_performance_table([performance])
+
 def main():
     while True:
         print("\n=== Mini NPU Simulator ===")
         print("1. 사용자 입력 (3×3)")
         print("2. data.json 분석")
+        print("3. 생성 패턴 분석")
         print("0. 종료")
 
         choice = input("선택: ").strip()
@@ -501,11 +564,13 @@ def main():
             run_manual_mode()
         elif choice == "2":
             run_json_mode()
+        elif choice == "3":
+            run_generated_mode()
         elif choice == "0":
             print("프로그램을 종료합니다.")
             break
         else:
-            print("0, 1, 2 중 하나를 입력하세요.")
+            print("0, 1, 2 중 하나를 입력하세요. 생성 패턴 분석은 3을 입력하세요.")
 
 
 if __name__ == "__main__":
