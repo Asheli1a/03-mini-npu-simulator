@@ -4,6 +4,10 @@ import re
 from time import perf_counter_ns
 from pathlib import Path
 
+class CalculationError(ValueError):
+    """유효한 입력의 계산 중 발생한 수치 오류."""
+
+
 def validate_matrix(matrix, name):
     """비어 있지 않은 정사각형 숫자 배열인지 확인하고 크기를 반환한다."""
     if not isinstance(matrix, list) or not matrix:
@@ -56,7 +60,15 @@ def calculate_score(pattern, filter_matrix):
             f"필터={filter_size}×{filter_size}"
         )
 
-    return mac(pattern, filter_matrix)
+    try:
+        score = mac(pattern, filter_matrix)
+    except OverflowError:
+        raise CalculationError("계산 중 숫자 표현 범위를 초과했습니다.") from None
+
+    if not math.isfinite(score):
+        raise CalculationError("계산 결과가 유한하지 않습니다.")
+
+    return score
 
 EPSILON = 1e-9
 
@@ -81,13 +93,19 @@ def normalize_label(label):
 
 
 def decide_label(score_cross, score_x):
-    """Cross/X 점수를 비교하여 표준 라벨 또는 UNDECIDED를 반환한다."""
+    """유한한 두 점수를 epsilon 정책으로 비교한다."""
+    if not all(
+        math.isfinite(score)
+        for score in (score_cross, score_x)
+    ):
+        raise CalculationError("판정할 점수는 유한한 숫자여야 합니다.")
+
     difference = score_cross - score_x
 
     if abs(difference) < EPSILON:
         return "UNDECIDED"
 
-    if difference > 0:
+    if score_cross > score_x:
         return "Cross"
 
     return "X"
@@ -161,9 +179,13 @@ def run_manual_mode():
 
     pattern = read_matrix("패턴")
 
-    score_a = calculate_score(pattern, filter_a)
-    score_b = calculate_score(pattern, filter_b)
-    result = decide_ab(score_a, score_b)
+    try:
+        score_a = calculate_score(pattern, filter_a)
+        score_b = calculate_score(pattern, filter_b)
+        result = decide_ab(score_a, score_b)
+    except (ValueError, OverflowError) as error:
+        print(f"\n계산 오류: {error}")
+        return
 
     print("\n=== MAC 결과 ===")
     print(f"A 점수: {score_a!r}")
@@ -215,6 +237,9 @@ def parse_case_size(case_id):
 
 def get_filters(filters, size):
     """해당 크기의 필터를 검증하고 표준 라벨로 반환한다."""
+    if not isinstance(filters, dict):
+        raise ValueError("filters는 객체여야 합니다.")
+
     size_key = f"size_{size}"
     group = filters.get(size_key)
 
@@ -270,7 +295,7 @@ def analyze_case(case_id, case, filters):
     score_x = calculate_score(pattern, selected_filters["X"])
 
     if not all(math.isfinite(score) for score in (score_cross, score_x)):
-        raise ValueError("계산 결과가 유한하지 않습니다.")
+        raise CalculationError("계산 결과가 유한하지 않습니다.")
 
     prediction = decide_label(score_cross, score_x)
     passed = prediction == expected
@@ -295,12 +320,22 @@ def analyze_case(case_id, case, filters):
 
 def analyze_data(data):
     """데이터 오류가 있는 케이스도 FAIL로 기록하고 분석을 계속한다."""
+    if not isinstance(data, dict):
+        raise ValueError("최상위 데이터는 객체여야 합니다.")
+    for key in ("filters", "patterns"):
+        if not isinstance(data.get(key), dict):
+            raise ValueError(f"{key}는 객체여야 합니다.")
+
     results = []
 
     for case_id, case in data["patterns"].items():
         try:
             result = analyze_case(case_id, case, data["filters"])
-        except ValueError as error:
+        except (ValueError, OverflowError) as error:
+            if isinstance(error, (CalculationError, OverflowError)):
+                category = "수치 계산 오류"
+            else:
+                category = "데이터/스키마 오류"
             result = {
                 "case_id": case_id,
                 "score_cross": None,
@@ -308,7 +343,7 @@ def analyze_data(data):
                 "prediction": None,
                 "expected": None,
                 "passed": False,
-                "reason": f"데이터/스키마 오류: {error}",
+                "reason": f"{category}: {error}",
             }
 
         results.append(result)
@@ -373,6 +408,8 @@ def benchmark_mac(pattern, filter_matrix, repeats=1000):
 
     if size != filter_size:
         raise ValueError("측정할 패턴과 필터의 크기가 다릅니다.")
+
+    calculate_score(pattern, filter_matrix)
 
     # 첫 호출의 영향을 줄이기 위한 준비 실행
     for _ in range(5):
@@ -449,6 +486,7 @@ def run_json_performance(data):
             print(f"\n성능 측정 제외: {size}×{size}의 유효한 입력이 없습니다.")
 
     print_performance_table(rows)
+    return rows
 
 def main():
     while True:

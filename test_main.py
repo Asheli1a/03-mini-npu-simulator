@@ -1,4 +1,5 @@
 from copy import deepcopy
+from pathlib import Path
 import unittest
 
 from main import (
@@ -12,6 +13,7 @@ from main import (
     analyze_data,
     parse_case_size,
     benchmark_mac,
+    load_data,
 )
 
 
@@ -354,6 +356,37 @@ class TestBenchmarkMac(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             benchmark_mac(self.matrix, small_matrix, repeats=10)
+
+class TestProvidedData(unittest.TestCase):
+    def test_original_data_results(self):
+        path = Path(__file__).resolve().parent / "data.json"
+        data = load_data(path)
+        results = analyze_data(data)
+
+        actual = {
+            result["case_id"]: (
+                result["prediction"],
+                result["expected"],
+                result["passed"],
+            )
+            for result in results
+        }
+
+        expected = {
+            "size_5_1": ("UNDECIDED", "X", False),
+            "size_5_2": ("Cross", "Cross", True),
+            "size_13_1": ("X", "X", True),
+            "size_13_2": ("UNDECIDED", "Cross", False),
+            "size_25_1": ("UNDECIDED", "X", False),
+            "size_25_2": ("Cross", "Cross", True),
+        }
+
+        self.assertEqual(len(results), 6)
+        self.assertEqual(actual, expected)
+        self.assertEqual(
+            sum(result["passed"] for result in results),
+            3,
+        )
 
 if __name__ == "__main__":
     unittest.main()
