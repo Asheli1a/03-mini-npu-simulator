@@ -29,6 +29,7 @@ mini-npu-simulator/
 ├─ compare_mac.py
 ├─ test_compare_mac.py
 ├─ test_review_improvements.py
+├─ test_failure_reporting.py
 ├─ mac_comparison.csv          # 비교 실행 시 생성
 ├─ mac_comparison_run1.csv     # 첫 실행 보존본
 ├─ mac_comparison_run2.csv     # 두 번째 실행 보존본
@@ -36,7 +37,8 @@ mini-npu-simulator/
 ├─ VALIDATION.md
 ├─ validation.log
 ├─ docs/
-│  └─ mac-hardware-acceleration.md
+│  ├─ mac-hardware-acceleration.md
+│  └─ ai-history-and-mac.md
 └─ README.md
 ```
 
@@ -51,10 +53,12 @@ mini-npu-simulator/
 - compare_mac.py: 2차원·준비된 1차원·변환 포함 1차원의 비교 측정과 CSV 저장
 - test_compare_mac.py: 비교 측정 인자·결과 구조·단위 변환 등 자동 테스트
 - test_review_improvements.py: 메뉴 안내·실행 순서·CSV 저장·덮어쓰기·측정 전 점수 검사 보완 테스트
+- test_failure_reporting.py: epsilon 안내·실패 유형 태그·동점 집계·오류 후 분석 지속·집계 합계 검증
 - mac_comparison*.csv: 비교 측정 결과와 실행별 보존본. 최신 결과는 재실행 시 덮어씀
 - VALIDATION.md / validation.log: 배포 전 검증 기록
 - README.md: 실행 방법과 결과 리포트
 - docs/mac-hardware-acceleration.md: CPU SIMD·Pascal CUDA·Tensor Core·NPU 심화 설명
+- docs/ai-history-and-mac.md: 전문가 시스템·SVM·CNN·트랜스포머의 변화로 이해하는 MAC의 중요성과 이번 구현의 범위
 
 ## 3. 실행 방법
 
@@ -76,7 +80,7 @@ python main.py
 | 실행 경로 | 입력 | 판정 | 정답 비교·집계 |
 |---|---|---|---|
 | 모드 1: 수동 입력 | 3×3 필터 A·B와 패턴 | A / B / 판정 불가 | expected 비교와 PASS/FAIL 집계 없음 |
-| 모드 2: JSON 분석 | 원본 JSON의 필터·패턴 | Cross / X / UNDECIDED | expected와 비교해 PASS/FAIL 집계, 실패 케이스·사유 출력 |
+| 모드 2: JSON 분석 | 원본 JSON의 필터·패턴 | Cross / X / UNDECIDED | expected와 비교해 PASS/FAIL·실패 유형별 집계, 실패 케이스·사유 출력 |
 | 모드 3: 생성 패턴 | 홀수 크기와 Cross·X 선택 | Cross / X / UNDECIDED | 생성한 종류와 판정을 함께 표시하며 일괄 PASS/FAIL 집계는 하지 않음 |
 | 별도 비교 프로그램 | 생성 X 패턴과 Cross 필터 | 라벨 판정 대신 계산 점수 일치 확인 | 세 측정 경로의 시간과 CSV 출력 |
 
@@ -131,6 +135,8 @@ nan과 inf 등 유한하지 않은 값도 입력 오류로 처리한다. 재입�
 
 필터 A와 B는 입력으로 지정하는 임의의 필터이다. 계산 후 A/B/판정 불가와 각 필터의 점수를 출력한다.
 
+계산 결과를 출력할 때 두 점수 차이의 절댓값이 1e-09 미만이면 판정 불가라는 기준을 함께 안내한다. 승패가 정해진 경우에도 같은 안내를 표시한다. 이는 기존 EPSILON=1e-9 정책의 설명이며, 점수식이나 동점 경계 조건을 바꾼 것은 아니다.
+
 성능 표는 입력한 패턴과 필터 A에 대한 MAC 호출 시간을 표시한다. 필터 두 개의 전체 판정 시간은 아니다. 시간은 ms 단위의 소수점 여섯 자리로 출력한다. 다음은 2026-11-15 모드 1 실행에서 기록한 평균 0.001947ms를 표 형식으로 옮긴 예시이며, 새로 측정한 값이 아니다.
 
 ```text
@@ -164,6 +170,34 @@ filters에서 size_5, size_13, size_25 필터를 읽는다. JSON 모드의 지�
 ```
 
 오류 유형별 진단은 10절의 「6) 실패 원인을 어떻게 분리하는가?」에 정리했다. 원본 데이터의 세 FAIL은 이 예시와 같은 스키마 오류가 아니라 점수 동점에 해당하며, 8절의 판정 표와 독립 십진 연산 검산에서 근거를 확인할 수 있다.
+
+### 실패 유형별 집계
+
+각 분석 결과에 failure_type을 기록하고, summarize_results()가 사유 문자열이 아닌 구조화된 유형으로 집계한다. 기존 점수·판정·PASS/FAIL·실패 사유는 유지한다.
+
+| 분석 결과 | failure_type |
+|---|---|
+| PASS | None |
+| 동점 판정 | tie |
+| 판정과 expected 불일치 | prediction_mismatch |
+| 데이터/스키마 오류 | data_schema |
+| 수치 계산 오류 | numeric |
+
+원본 JSON의 결과 요약은 다음과 같다.
+
+```text
+총 테스트: 6개
+통과: 3개
+실패: 3개
+
+실패 유형별 집계 (동점은 실패에 포함):
+- 동점 판정(UNDECIDED): 3개
+- 예측 불일치: 0개
+- 데이터/스키마 오류: 0개
+- 수치 계산 오류: 0개
+```
+
+동점은 실패의 하위 유형이므로 실패 수에 다시 더하지 않는다. 전체는 통과와 실패의 합계이며, 실패는 네 실패 유형의 합계와 같다. 기존 실패 케이스 식별자와 사유 목록도 함께 출력한다. 이 통계는 JSON 케이스의 판정 결과이며, unittest 자동 테스트 115개와는 별개다.
 
 ## 6. 구현 요약
 
@@ -199,6 +233,20 @@ UNDECIDED는 정답 라벨이 아닌 판정 상태로 취급한다.
 ## 7. 검증 결과
 
 ### 자동 테스트
+
+최신 결과는 바로 아래의 판정 안내·실패 집계 보완 검증에 기록했다.
+
+### 판정 안내·실패 집계 보완 검증
+
+2026-11-16 Windows / Python 3.15.2에서 실패 집계 보완 테스트 10개가 0.009초에, 전체 자동 테스트 115개가 0.911초에 모두 통과했다. 실패와 오류는 없었다. 실행 시간은 테스트 모음 전체 시간이며 MAC 벤치마크 값이 아니다. 아래의 100개·105개 검증은 이전 단계의 이력으로 유지한다.
+
+신규 검사는 PASS·동점·예측 불일치·데이터/스키마 오류·수치 계산 오류의 유형, 오류 후 분석 지속, 전체·통과·실패·유형별 합계의 일치, 사유 문자열과 무관한 집계, 빈 결과와 전부 PASS인 경우, 잘못된 유형 거부, 원본 JSON 요약 출력, 모드 1의 승패·동점 안내를 확인한다.
+
+JSON 모드를 직접 실행해 기존 6개 케이스의 점수와 3 PASS / 3 FAIL이 유지되고, 동점 3개와 나머지 실패 유형 0개가 출력되는 것을 확인했다. 실패 케이스·사유 목록, 메뉴 복귀와 정상 종료도 유지됐다. 원본 데이터·epsilon·MAC 계산식·성능 측정 구간은 변경하지 않았다.
+
+별도 AI 보조 검증에서는 Python 3.12.8 / Linux 환경에서 신규 10개와 기존 관련 검사 72개를 합한 82개가 통과했다. 이 단계의 Linux 결과는 전체 115개 실행 결과가 아니며, 위 Windows 직접 실행 결과와 구분한다. AI 보조 도구명과 실행 환경의 표기는 아래 최종 검토 보완 검사에 명시한 기준을 따른다.
+
+### 이전 기능 추가 후 검증
 
 기능 추가 후 확인: 2026-11-16 Windows / Python 3.15.2에서 전체 테스트 100개가 모두 통과했다.
 
@@ -344,6 +392,10 @@ Windows / Python 3.15.2에서 2026-11-15에 직접 측정한 수정본의 한 �
 심화 읽기: [MAC과 하드웨어 가속: CPU SIMD·Pascal CUDA·Tensor Core·NPU 비교](docs/mac-hardware-acceleration.md)
 
 기존 CPU/GPU도 MAC을 병렬 처리한다는 점과, 전용 행렬 가속기의 데이터 재사용·정밀도·호출 비용 차이를 연결해 설명한다. 심화 자료는 설명 문서이며 제출 프로그램에 외부 가속 라이브러리를 추가하지 않는다.
+
+심화 읽기: [AI 발전사로 이해하는 MAC의 중요성](docs/ai-history-and-mac.md)
+
+전문가 시스템의 명시적 규칙에서 SVM의 판단 경계, CNN의 특징 학습, 트랜스포머의 문맥 관계 계산으로 이어지는 변화를 비전공자 관점에서 설명한다. 현재 프로그램의 고정 필터 내적 계산과 실제 신경망 학습·합성곱·어텐션의 차이도 구분한다. 하드웨어별 실행 방식은 위의 하드웨어 가속 문서에서 다룬다.
 
 ### 1) MAC은 무엇이고 AI에서 왜 중요한가?
 

@@ -137,6 +137,13 @@ def calculate_flat_score(pattern, filter_vector):
 
 EPSILON = 1e-9
 
+FAILURE_LABELS = {
+    "tie": "동점 판정(UNDECIDED)",
+    "prediction_mismatch": "예측 불일치",
+    "data_schema": "데이터/스키마 오류",
+    "numeric": "수치 계산 오류",
+}
+
 
 def normalize_label(label):
     """외부 라벨을 내부 표준 라벨 Cross 또는 X로 변환한다."""
@@ -255,6 +262,10 @@ def run_manual_mode():
     print("\n=== MAC 결과 ===")
     print(f"A 점수: {score_a!r}")
     print(f"B 점수: {score_b!r}")
+    print(
+        f"판정 기준: 두 점수 차이의 절댓값이 {EPSILON:g} 미만이면 "
+        "판정 불가(UNDECIDED)입니다."
+    )
 
     if result == "UNDECIDED":
         print(f"판정: 판정 불가 (UNDECIDED, 점수 차이 < {EPSILON:g})")
@@ -367,10 +378,13 @@ def analyze_case(case_id, case, filters):
 
     if passed:
         reason = ""
+        failure_type = None
     elif prediction == "UNDECIDED":
         reason = "epsilon 동점 규칙에 따라 UNDECIDED"
+        failure_type = "tie"
     else:
         reason = f"예측과 정답 불일치: {prediction} != {expected}"
+        failure_type = "prediction_mismatch"
 
     return {
         "case_id": case_id,
@@ -380,6 +394,7 @@ def analyze_case(case_id, case, filters):
         "expected": expected,
         "passed": passed,
         "reason": reason,
+        "failure_type": failure_type,
     }
 
 
@@ -399,8 +414,10 @@ def analyze_data(data):
         except (ValueError, OverflowError) as error:
             if isinstance(error, (CalculationError, OverflowError)):
                 category = "수치 계산 오류"
+                failure_type = "numeric"
             else:
                 category = "데이터/스키마 오류"
+                failure_type = "data_schema"
             result = {
                 "case_id": case_id,
                 "score_cross": None,
@@ -409,11 +426,37 @@ def analyze_data(data):
                 "expected": None,
                 "passed": False,
                 "reason": f"{category}: {error}",
+                "failure_type": failure_type,
             }
 
         results.append(result)
 
     return results
+
+
+def summarize_results(results):
+    """analyze_data의 결과를 사유 문자열이 아닌 실패 유형으로 집계한다."""
+    counts = {failure_type: 0 for failure_type in FAILURE_LABELS}
+    passed = 0
+
+    for result in results:
+        if result["passed"]:
+            if result["failure_type"] is not None:
+                raise ValueError("PASS 결과에는 실패 유형을 지정할 수 없습니다.")
+            passed += 1
+        else:
+            failure_type = result["failure_type"]
+            if failure_type not in counts:
+                raise ValueError(f"지원하지 않는 실패 유형: {failure_type!r}")
+            counts[failure_type] += 1
+
+    return {
+        "total": len(results),
+        "passed": passed,
+        "failed": sum(counts.values()),
+        "undecided": counts["tie"],
+        "failure_counts": counts,
+    }
 
 
 def run_json_mode():
@@ -447,13 +490,16 @@ def run_json_mode():
             print(f"사유: {result['reason']}")
 
     run_json_performance(data)
-    passed_count = sum(result["passed"] for result in results)
+    summary = summarize_results(results)
     failures = [result for result in results if not result["passed"]]
 
     print("\n=== 결과 요약 ===")
-    print(f"총 테스트: {len(results)}개")
-    print(f"통과: {passed_count}개")
-    print(f"실패: {len(failures)}개")
+    print(f"총 테스트: {summary['total']}개")
+    print(f"통과: {summary['passed']}개")
+    print(f"실패: {summary['failed']}개")
+    print("\n실패 유형별 집계 (동점은 실패에 포함):")
+    for failure_type, label in FAILURE_LABELS.items():
+        print(f"- {label}: {summary['failure_counts'][failure_type]}개")
 
     if failures:
         print("\n실패 케이스:")
