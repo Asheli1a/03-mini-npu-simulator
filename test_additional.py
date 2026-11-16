@@ -231,7 +231,7 @@ class TestReviewRegression(unittest.TestCase):
             with patch("sys.stdout", new_callable=io.StringIO) as output:
                 app.main()
         text = output.getvalue()
-        self.assertIn("0, 1, 2 중 하나", text)
+        self.assertIn("0, 1, 2, 3 중 하나", text)
         self.assertIn("판정: B", text)
         self.assertIn("성능 분석", text)
 
