@@ -71,6 +71,70 @@ def calculate_score(pattern, filter_matrix):
 
     return score
 
+def flatten_matrix(matrix):
+    """정사각형 숫자 배열을 행 우선 순서의 새 리스트로 변환한다."""
+    validate_matrix(matrix, "평탄화 배열")
+
+    flattened = []
+
+    for row in matrix:
+        for value in row:
+            flattened.append(value)
+
+    return flattened
+
+
+def validate_vector(vector, name):
+    """비어 있지 않은 유한한 숫자 리스트인지 검증한다."""
+    if not isinstance(vector, list) or not vector:
+        raise ValueError(f"{name}: 비어 있지 않은 1차원 리스트가 필요합니다.")
+
+    for index, value in enumerate(vector):
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError(
+                f"{name}: {index + 1}번째 값은 숫자여야 합니다."
+            )
+
+        if isinstance(value, float) and not math.isfinite(value):
+            raise ValueError(
+                f"{name}: {index + 1}번째 값은 유한한 숫자여야 합니다."
+            )
+
+    return len(vector)
+
+
+def mac_flat(pattern, filter_vector):
+    """검증된 동일 길이의 1차원 배열 두 개를 MAC 계산한다."""
+    score = 0.0
+
+    for index in range(len(pattern)):
+        score += pattern[index] * filter_vector[index]
+
+    return score
+
+
+def calculate_flat_score(pattern, filter_vector):
+    """1차원 배열을 검증하고 유한한 MAC 점수를 반환한다."""
+    pattern_length = validate_vector(pattern, "1차원 패턴")
+    filter_length = validate_vector(filter_vector, "1차원 필터")
+
+    if pattern_length != filter_length:
+        raise ValueError(
+            f"길이 불일치: 패턴={pattern_length}, 필터={filter_length}"
+        )
+
+    try:
+        score = mac_flat(pattern, filter_vector)
+    except OverflowError:
+        raise CalculationError(
+            "1차원 계산 중 숫자 표현 범위를 초과했습니다."
+        ) from None
+
+    if not math.isfinite(score):
+        raise CalculationError("1차원 계산 결과가 유한하지 않습니다.")
+
+    return score
+
 EPSILON = 1e-9
 
 
