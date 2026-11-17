@@ -41,6 +41,8 @@ def validate_matrix(matrix, name):
 
 def mac(pattern, filter_matrix):
     """같은 크기로 검증된 정사각형 배열 두 개의 MAC 점수를 계산한다."""
+    # 필터 하나당 N² MAC: 위치마다 곱셈 1회와 누적 덧셈 1회.
+    # Python의 곱셈·덧셈이 단일 반올림의 하드웨어 FMA라는 뜻은 아니다.
     score = 0.0
 
     for row in range(len(pattern)):
@@ -135,6 +137,7 @@ def calculate_flat_score(pattern, filter_vector):
 
     return score
 
+# 과제 권장값을 따르는 절대오차 동점 기준이며, 모든 점수 규모의 최적값은 아니다.
 EPSILON = 1e-9
 
 FAILURE_LABELS = {
@@ -301,7 +304,10 @@ def parse_case_size(case_id):
     match = re.fullmatch(r"size_([1-9][0-9]*)_([1-9][0-9]*)", case_id)
 
     if match is None:
-        raise ValueError(f"케이스 키 형식 오류: {case_id!r}")
+        raise ValueError(
+            f"케이스 키 형식 오류: {case_id!r} "
+            "(허용 예: size_5_1, size_13_2, size_25_1)"
+        )
 
     size = int(match.group(1))
 
@@ -482,6 +488,10 @@ def run_json_mode():
                 f"판정: {result['prediction']} | "
                 f"expected: {result['expected']}"
             )
+            if result["prediction"] == "UNDECIDED":
+                difference = abs(result["score_cross"] - result["score_x"])
+                print(f"동점 근거: |Cross - X| = {difference!r}")
+                print(f"판정 기준: 점수 차이 < {EPSILON:g} (절대오차)")
 
         status = "PASS" if result["passed"] else "FAIL"
         print(f"결과: {status}")
@@ -507,7 +517,10 @@ def run_json_mode():
             print(f"- {result['case_id']}: {result['reason']}")
 
 def benchmark_mac(pattern, filter_matrix, repeats=1000):
-    """검증을 제외한 MAC 함수 호출 시간을 반복 측정한다."""
+    """검증·I/O를 제외한 필터 하나의 MAC 호출 시간을 반복 측정한다.
+
+    함수 호출과 타이머 관련 오버헤드는 포함되며 작은 입력에서 비중이 커진다.
+    """
     if isinstance(repeats, bool) or not isinstance(repeats, int):
         raise ValueError("반복 횟수는 정수여야 합니다.")
 
@@ -545,6 +558,7 @@ def benchmark_mac(pattern, filter_matrix, repeats=1000):
 def print_performance_table(rows):
     print("\n=== 성능 분석 ===")
     print("측정 대상: 필터 1개에 대한 MAC 함수 호출")
+    # README 예시와 같은 열 순서: 크기 / 평균 ms(소수점 6자리) / 필터 1개의 N² / 반복 횟수.
     print("크기       평균 시간(ms)    MAC 횟수(N²)    반복 횟수")
     print("-" * 60)
 

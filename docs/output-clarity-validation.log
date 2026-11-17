@@ -1,0 +1,429 @@
+Output clarity verification — 2026-11-17
+Verifier: Perplexity isolated execution environment; not Windows local execution.
+Python: 3.12.8 (main, Aug 11 2026, 02:20:20) [GCC 15.2.0]
+Platform: Linux-6.1.155+-x86_64-with-glibc2.43
+Baseline main.py Git blob SHA: 8d01d4a4393bdb828370c1caf0c589d35f27c921
+Baseline README.md Git blob SHA: 0c1983d06a05fc8a4e5db13b8c3ae52dbd53de1f
+Modified main.py SHA-256: ad51c9b56a34af1928d42c62fd15fad70840c672613463cc517edb74600f45c3
+Data SHA-256 (LF): f1e15a6a4616e76c2c9006e0282374c77eb96921e9f1b6e5b29490da7f235e79
+No original benchmark CSV or historical validation.log was overwritten.
+
+COMMAND: python -B -m unittest discover -v
+test_float_overflow_rejected (test_additional.TestAdditional.test_float_overflow_rejected) ... ok
+test_invalid_cases_do_not_stop_analysis (test_additional.TestAdditional.test_invalid_cases_do_not_stop_analysis) ... ok
+test_json_mode_file_errors_return_to_menu (test_additional.TestAdditional.test_json_mode_file_errors_return_to_menu) ... ok
+test_large_integer_overflow_rejected (test_additional.TestAdditional.test_large_integer_overflow_rejected) ... ok
+test_manual_overflow_returns_to_menu (test_additional.TestAdditional.test_manual_overflow_returns_to_menu) ... ok
+test_non_finite_scores_rejected (test_additional.TestAdditional.test_non_finite_scores_rejected) ... ok
+test_provided_data_results (test_additional.TestAdditional.test_provided_data_results) ... ok
+test_read_matrix_retries_invalid_row (test_additional.TestAdditional.test_read_matrix_retries_invalid_row) ... ok
+test_benchmark_rejects_overflow_before_timing (test_additional.TestReviewRegression.test_benchmark_rejects_overflow_before_timing) ... ok
+test_bom_json_accepted (test_additional.TestReviewRegression.test_bom_json_accepted) ... ok
+test_cli_eof_is_clean (test_additional.TestReviewRegression.test_cli_eof_is_clean) ... ok
+test_decimal_exact_ties (test_additional.TestReviewRegression.test_decimal_exact_ties) ... ok
+test_direct_analysis_invalid_top_level (test_additional.TestReviewRegression.test_direct_analysis_invalid_top_level) ... ok
+test_empty_patterns_rejected_on_load (test_additional.TestReviewRegression.test_empty_patterns_rejected_on_load) ... ok
+test_manual_normal_and_menu_retry (test_additional.TestReviewRegression.test_manual_normal_and_menu_retry) ... ok
+test_missing_case_fields (test_additional.TestReviewRegression.test_missing_case_fields) ... ok
+test_non_finite_matrix_rejected (test_additional.TestReviewRegression.test_non_finite_matrix_rejected) ... ok
+test_normalization_collision_rejected (test_additional.TestReviewRegression.test_normalization_collision_rejected) ... ok
+test_numeric_error_is_not_schema_error (test_additional.TestReviewRegression.test_numeric_error_is_not_schema_error) ... ok
+test_script_from_another_directory (test_additional.TestReviewRegression.test_script_from_another_directory) ... ok
+test_batch_average_unit_conversion (test_compare_mac.TestMacComparison.test_batch_average_unit_conversion) ... ok
+test_inputs_unchanged (test_compare_mac.TestMacComparison.test_inputs_unchanged) ... ok
+test_invalid_matrix (test_compare_mac.TestMacComparison.test_invalid_matrix) ... ok
+test_invalid_repeats (test_compare_mac.TestMacComparison.test_invalid_repeats) ... ok
+test_invalid_rounds (test_compare_mac.TestMacComparison.test_invalid_rounds) ... ok
+test_overflow_rejected (test_compare_mac.TestMacComparison.test_overflow_rejected) ... ok
+test_result_structure (test_compare_mac.TestMacComparison.test_result_structure) ... ok
+test_unchecked_flatten_matches_public (test_compare_mac.TestMacComparison.test_unchecked_flatten_matches_public) ... ok
+test_empty_all_pass_and_invalid_tag (test_failure_reporting.TestFailureReporting.test_empty_all_pass_and_invalid_tag) ... ok
+test_manual_epsilon_hint_for_winner_and_tie (test_failure_reporting.TestFailureReporting.test_manual_epsilon_hint_for_winner_and_tie) ... ok
+test_mixed_summary_invariants (test_failure_reporting.TestFailureReporting.test_mixed_summary_invariants) ... ok
+test_numeric_errors_are_not_schema_errors (test_failure_reporting.TestFailureReporting.test_numeric_errors_are_not_schema_errors) ... ok
+test_original_json_summary_output (test_failure_reporting.TestFailureReporting.test_original_json_summary_output) ... ok
+test_pass_has_no_failure_type (test_failure_reporting.TestFailureReporting.test_pass_has_no_failure_type) ... ok
+test_prediction_mismatch_tag (test_failure_reporting.TestFailureReporting.test_prediction_mismatch_tag) ... ok
+test_schema_error_keeps_analysis_running (test_failure_reporting.TestFailureReporting.test_schema_error_keeps_analysis_running) ... ok
+test_summary_uses_tags_not_reason_strings (test_failure_reporting.TestFailureReporting.test_summary_uses_tags_not_reason_strings) ... ok
+test_tie_tag (test_failure_reporting.TestFailureReporting.test_tie_tag) ... ok
+test_flatten_order (test_flat_mac.TestFlatMac.test_flatten_order) ... ok
+test_flatten_rejects_invalid_matrix (test_flat_mac.TestFlatMac.test_flatten_rejects_invalid_matrix) ... ok
+test_flatten_returns_independent_list (test_flat_mac.TestFlatMac.test_flatten_returns_independent_list) ... ok
+test_generated_patterns_match_2d (test_flat_mac.TestFlatMac.test_generated_patterns_match_2d) ... ok
+test_invalid_vectors (test_flat_mac.TestFlatMac.test_invalid_vectors) ... ok
+test_known_score (test_flat_mac.TestFlatMac.test_known_score) ... ok
+test_length_mismatch (test_flat_mac.TestFlatMac.test_length_mismatch) ... ok
+test_negative_decimal_values_match_2d (test_flat_mac.TestFlatMac.test_negative_decimal_values_match_2d) ... ok
+test_non_finite_values (test_flat_mac.TestFlatMac.test_non_finite_values) ... ok
+test_original_data_scores_and_predictions_match (test_flat_mac.TestFlatMac.test_original_data_scores_and_predictions_match) ... ok
+test_overflow_rejected (test_flat_mac.TestFlatMac.test_overflow_rejected) ... ok
+test_raw_mac_matches_validated_calculation (test_flat_mac.TestFlatMac.test_raw_mac_matches_validated_calculation) ... ok
+test_non_integer_repeats (test_main.TestBenchmarkMac.test_non_integer_repeats) ... ok
+test_result_fields (test_main.TestBenchmarkMac.test_result_fields) ... ok
+test_size_mismatch (test_main.TestBenchmarkMac.test_size_mismatch) ... ok
+test_too_few_repeats (test_main.TestBenchmarkMac.test_too_few_repeats) ... ok
+test_a_wins (test_main.TestDecideAB.test_a_wins) ... ok
+test_b_wins (test_main.TestDecideAB.test_b_wins) ... ok
+test_tie (test_main.TestDecideAB.test_tie) ... ok
+test_calculate_then_decide (test_main.TestDecideLabel.test_calculate_then_decide) ... ok
+test_cross_wins (test_main.TestDecideLabel.test_cross_wins) ... ok
+test_difference_above_epsilon (test_main.TestDecideLabel.test_difference_above_epsilon) ... ok
+test_difference_below_epsilon (test_main.TestDecideLabel.test_difference_below_epsilon) ... ok
+test_difference_equal_to_epsilon (test_main.TestDecideLabel.test_difference_equal_to_epsilon) ... ok
+test_exact_tie (test_main.TestDecideLabel.test_exact_tie) ... ok
+test_float_rounding_tie (test_main.TestDecideLabel.test_float_rounding_tie) ... ok
+test_x_wins (test_main.TestDecideLabel.test_x_wins) ... ok
+test_filter_size_mismatch (test_main.TestJsonAnalysis.test_filter_size_mismatch) ... ok
+test_invalid_case_does_not_stop_analysis (test_main.TestJsonAnalysis.test_invalid_case_does_not_stop_analysis) ... ok
+test_invalid_case_key (test_main.TestJsonAnalysis.test_invalid_case_key) ... ok
+test_parse_case_size (test_main.TestJsonAnalysis.test_parse_case_size) ... ok
+test_pattern_size_mismatch (test_main.TestJsonAnalysis.test_pattern_size_mismatch) ... ok
+test_tie_is_fail (test_main.TestJsonAnalysis.test_tie_is_fail) ... ok
+test_valid_case_passes (test_main.TestJsonAnalysis.test_valid_case_passes) ... ok
+test_cross_with_cross (test_main.TestMac.test_cross_with_cross) ... ok
+test_cross_with_x (test_main.TestMac.test_cross_with_x) ... ok
+test_decimal_values (test_main.TestMac.test_decimal_values) ... ok
+test_empty_matrix (test_main.TestMac.test_empty_matrix) ... ok
+test_irregular_rows (test_main.TestMac.test_irregular_rows) ... ok
+test_non_numeric_value (test_main.TestMac.test_non_numeric_value) ... ok
+test_size_mismatch (test_main.TestMac.test_size_mismatch) ... ok
+test_x_with_cross (test_main.TestMac.test_x_with_cross) ... ok
+test_x_with_x (test_main.TestMac.test_x_with_x) ... ok
+test_zero_pattern (test_main.TestMac.test_zero_pattern) ... ok
+test_cross_labels (test_main.TestNormalizeLabel.test_cross_labels) ... ok
+test_non_string_labels (test_main.TestNormalizeLabel.test_non_string_labels) ... ok
+test_surrounding_whitespace (test_main.TestNormalizeLabel.test_surrounding_whitespace) ... ok
+test_unknown_labels (test_main.TestNormalizeLabel.test_unknown_labels) ... ok
+test_x_labels (test_main.TestNormalizeLabel.test_x_labels) ... ok
+test_decimals_and_negative_values (test_main.TestParseRow.test_decimals_and_negative_values) ... ok
+test_empty_input (test_main.TestParseRow.test_empty_input) ... ok
+test_extra_whitespace (test_main.TestParseRow.test_extra_whitespace) ... ok
+test_non_finite_values (test_main.TestParseRow.test_non_finite_values) ... ok
+test_non_numeric_value (test_main.TestParseRow.test_non_numeric_value) ... ok
+test_valid_integers (test_main.TestParseRow.test_valid_integers) ... ok
+test_wrong_column_count (test_main.TestParseRow.test_wrong_column_count) ... ok
+test_original_data_results (test_main.TestProvidedData.test_original_data_results) ... ok
+test_benchmark_keeps_call_boundary_and_units (test_output_clarity.TestOutputClarity.test_benchmark_keeps_call_boundary_and_units) ... ok
+test_exact_tie_displays_zero (test_output_clarity.TestOutputClarity.test_exact_tie_displays_zero) ... ok
+test_input_errors_match_documentation (test_output_clarity.TestOutputClarity.test_input_errors_match_documentation) ... ok
+test_invalid_key_has_examples (test_output_clarity.TestOutputClarity.test_invalid_key_has_examples) ... ok
+test_near_tie_preserves_small_difference (test_output_clarity.TestOutputClarity.test_near_tie_preserves_small_difference) ... ok
+test_original_tie_evidence_and_summary (test_output_clarity.TestOutputClarity.test_original_tie_evidence_and_summary) ... ok
+test_performance_table_contract (test_output_clarity.TestOutputClarity.test_performance_table_contract) ... ok
+test_schema_error_keeps_next_case (test_output_clarity.TestOutputClarity.test_schema_error_keeps_next_case) ... ok
+test_valid_sizes_and_unsupported_size_unchanged (test_output_clarity.TestOutputClarity.test_valid_sizes_and_unsupported_size_unchanged) ... ok
+test_winner_has_no_tie_evidence (test_output_clarity.TestOutputClarity.test_winner_has_no_tie_evidence) ... ok
+test_cross_mode (test_patterns.TestGeneratedMode.test_cross_mode) ... ok
+test_invalid_pattern_choice_retry (test_patterns.TestGeneratedMode.test_invalid_pattern_choice_retry) ... ok
+test_invalid_size_retry (test_patterns.TestGeneratedMode.test_invalid_size_retry) ... ok
+test_large_pattern_display_omitted (test_patterns.TestGeneratedMode.test_large_pattern_display_omitted) ... ok
+test_x_mode (test_patterns.TestGeneratedMode.test_x_mode) ... ok
+test_active_cell_count (test_patterns.TestPatternGenerator.test_active_cell_count) ... ok
+test_calls_are_independent (test_patterns.TestPatternGenerator.test_calls_are_independent) ... ok
+test_cross_three (test_patterns.TestPatternGenerator.test_cross_three) ... ok
+test_dimensions_and_values (test_patterns.TestPatternGenerator.test_dimensions_and_values) ... ok
+test_invalid_sizes (test_patterns.TestPatternGenerator.test_invalid_sizes) ... ok
+test_invalid_types (test_patterns.TestPatternGenerator.test_invalid_types) ... ok
+test_mac_with_generated_patterns (test_patterns.TestPatternGenerator.test_mac_with_generated_patterns) ... ok
+test_pattern_rules_and_overlap (test_patterns.TestPatternGenerator.test_pattern_rules_and_overlap) ... ok
+test_rows_are_independent (test_patterns.TestPatternGenerator.test_rows_are_independent) ... ok
+test_x_three (test_patterns.TestPatternGenerator.test_x_three) ... ok
+test_csv_overwrite_preserves_archive (test_review_improvements.TestReviewImprovements.test_csv_overwrite_preserves_archive) ... ok
+test_csv_values_and_script_relative_location (test_review_improvements.TestReviewImprovements.test_csv_values_and_script_relative_location) ... ok
+test_measurement_order_rotates_balanced (test_review_improvements.TestReviewImprovements.test_measurement_order_rotates_balanced) ... ok
+test_menu_lists_all_choices (test_review_improvements.TestReviewImprovements.test_menu_lists_all_choices) ... ok
+test_mismatch_rejected_before_timing (test_review_improvements.TestReviewImprovements.test_mismatch_rejected_before_timing) ... ok
+
+----------------------------------------------------------------------
+Ran 125 tests in 0.930s
+
+OK
+
+COMMAND: python -B -m unittest -v test_output_clarity
+test_benchmark_keeps_call_boundary_and_units (test_output_clarity.TestOutputClarity.test_benchmark_keeps_call_boundary_and_units) ... ok
+test_exact_tie_displays_zero (test_output_clarity.TestOutputClarity.test_exact_tie_displays_zero) ... ok
+test_input_errors_match_documentation (test_output_clarity.TestOutputClarity.test_input_errors_match_documentation) ... ok
+test_invalid_key_has_examples (test_output_clarity.TestOutputClarity.test_invalid_key_has_examples) ... ok
+test_near_tie_preserves_small_difference (test_output_clarity.TestOutputClarity.test_near_tie_preserves_small_difference) ... ok
+test_original_tie_evidence_and_summary (test_output_clarity.TestOutputClarity.test_original_tie_evidence_and_summary) ... ok
+test_performance_table_contract (test_output_clarity.TestOutputClarity.test_performance_table_contract) ... ok
+test_schema_error_keeps_next_case (test_output_clarity.TestOutputClarity.test_schema_error_keeps_next_case) ... ok
+test_valid_sizes_and_unsupported_size_unchanged (test_output_clarity.TestOutputClarity.test_valid_sizes_and_unsupported_size_unchanged) ... ok
+test_winner_has_no_tie_evidence (test_output_clarity.TestOutputClarity.test_winner_has_no_tie_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.008s
+
+OK
+
+=== Manual winner ===
+STDIN lines:
+1
+0 1 0
+1 1 1
+0 1 0
+1 0 1
+0 1 0
+1 0 1
+1 0 1
+0 1 0
+1 0 1
+0
+STDOUT:
+
+=== Mini NPU Simulator ===
+1. 사용자 입력 (3×3)
+2. data.json 분석
+3. 생성 패턴 분석
+0. 종료
+선택: 
+필터 A (3줄 입력, 각 줄에 숫자 3개)
+1행> 2행> 3행> 
+필터 B (3줄 입력, 각 줄에 숫자 3개)
+1행> 2행> 3행> 
+=== 필터 저장 확인 ===
+
+[필터 A]
+0 1 0
+1 1 1
+0 1 0
+
+[필터 B]
+1 0 1
+0 1 0
+1 0 1
+
+패턴 (3줄 입력, 각 줄에 숫자 3개)
+1행> 2행> 3행> 
+=== MAC 결과 ===
+A 점수: 1.0
+B 점수: 5.0
+판정 기준: 두 점수 차이의 절댓값이 1e-09 미만이면 판정 불가(UNDECIDED)입니다.
+판정: B
+
+=== 성능 분석 ===
+측정 대상: 필터 1개에 대한 MAC 함수 호출
+크기       평균 시간(ms)    MAC 횟수(N²)    반복 횟수
+------------------------------------------------------------
+3×3           0.000669               9         1000
+
+=== Mini NPU Simulator ===
+1. 사용자 입력 (3×3)
+2. data.json 분석
+3. 생성 패턴 분석
+0. 종료
+선택: 프로그램을 종료합니다.
+
+=== Manual tie ===
+STDIN lines:
+1
+0 1 0
+1 1 1
+0 1 0
+1 0 1
+0 1 0
+1 0 1
+0 0 0
+0 0 0
+0 0 0
+0
+STDOUT:
+
+=== Mini NPU Simulator ===
+1. 사용자 입력 (3×3)
+2. data.json 분석
+3. 생성 패턴 분석
+0. 종료
+선택: 
+필터 A (3줄 입력, 각 줄에 숫자 3개)
+1행> 2행> 3행> 
+필터 B (3줄 입력, 각 줄에 숫자 3개)
+1행> 2행> 3행> 
+=== 필터 저장 확인 ===
+
+[필터 A]
+0 1 0
+1 1 1
+0 1 0
+
+[필터 B]
+1 0 1
+0 1 0
+1 0 1
+
+패턴 (3줄 입력, 각 줄에 숫자 3개)
+1행> 2행> 3행> 
+=== MAC 결과 ===
+A 점수: 0.0
+B 점수: 0.0
+판정 기준: 두 점수 차이의 절댓값이 1e-09 미만이면 판정 불가(UNDECIDED)입니다.
+판정: 판정 불가 (UNDECIDED, 점수 차이 < 1e-09)
+
+=== 성능 분석 ===
+측정 대상: 필터 1개에 대한 MAC 함수 호출
+크기       평균 시간(ms)    MAC 횟수(N²)    반복 횟수
+------------------------------------------------------------
+3×3           0.000737               9         1000
+
+=== Mini NPU Simulator ===
+1. 사용자 입력 (3×3)
+2. data.json 분석
+3. 생성 패턴 분석
+0. 종료
+선택: 프로그램을 종료합니다.
+
+=== JSON ===
+STDIN lines:
+2
+0
+STDOUT:
+
+=== Mini NPU Simulator ===
+1. 사용자 입력 (3×3)
+2. data.json 분석
+3. 생성 패턴 분석
+0. 종료
+선택: 
+=== JSON 분석 결과 ===
+
+--- size_5_1 ---
+Cross 점수: 0.9
+X 점수: 0.8999999999999999
+판정: UNDECIDED | expected: X
+동점 근거: |Cross - X| = 1.1102230246251565e-16
+판정 기준: 점수 차이 < 1e-09 (절대오차)
+결과: FAIL
+사유: epsilon 동점 규칙에 따라 UNDECIDED
+
+--- size_5_2 ---
+Cross 점수: 8.9
+X 점수: 0.1
+판정: Cross | expected: Cross
+결과: PASS
+
+--- size_13_1 ---
+Cross 점수: 0.3
+X 점수: 14.700000000000008
+판정: X | expected: X
+결과: PASS
+
+--- size_13_2 ---
+Cross 점수: 7.499999999999997
+X 점수: 7.5
+판정: UNDECIDED | expected: Cross
+동점 근거: |Cross - X| = 2.6645352591003757e-15
+판정 기준: 점수 차이 < 1e-09 (절대오차)
+결과: FAIL
+사유: epsilon 동점 규칙에 따라 UNDECIDED
+
+--- size_25_1 ---
+Cross 점수: 4.9
+X 점수: 4.899999999999999
+판정: UNDECIDED | expected: X
+동점 근거: |Cross - X| = 1.7763568394002505e-15
+판정 기준: 점수 차이 < 1e-09 (절대오차)
+결과: FAIL
+사유: epsilon 동점 규칙에 따라 UNDECIDED
+
+--- size_25_2 ---
+Cross 점수: 52.9
+X 점수: 0.1
+판정: Cross | expected: Cross
+결과: PASS
+
+=== 성능 분석 ===
+측정 대상: 필터 1개에 대한 MAC 함수 호출
+크기       평균 시간(ms)    MAC 횟수(N²)    반복 횟수
+------------------------------------------------------------
+3×3           0.000690               9         1000
+5×5           0.001355              25         1000
+13×13         0.006961             169         1000
+25×25         0.024641             625         1000
+
+=== 결과 요약 ===
+총 테스트: 6개
+통과: 3개
+실패: 3개
+
+실패 유형별 집계 (동점은 실패에 포함):
+- 동점 판정(UNDECIDED): 3개
+- 예측 불일치: 0개
+- 데이터/스키마 오류: 0개
+- 수치 계산 오류: 0개
+
+실패 케이스:
+- size_5_1: epsilon 동점 규칙에 따라 UNDECIDED
+- size_13_2: epsilon 동점 규칙에 따라 UNDECIDED
+- size_25_1: epsilon 동점 규칙에 따라 UNDECIDED
+
+=== Mini NPU Simulator ===
+1. 사용자 입력 (3×3)
+2. data.json 분석
+3. 생성 패턴 분석
+0. 종료
+선택: 프로그램을 종료합니다.
+
+=== Manual input recovery ===
+STDIN lines:
+1
+0 1
+0 hello 1
+nan 0 1
+0 1 0
+1 1 1
+0 1 0
+1 0 1
+0 1 0
+1 0 1
+1 0 1
+0 1 0
+1 0 1
+0
+STDOUT:
+
+=== Mini NPU Simulator ===
+1. 사용자 입력 (3×3)
+2. data.json 분석
+3. 생성 패턴 분석
+0. 종료
+선택: 
+필터 A (3줄 입력, 각 줄에 숫자 3개)
+1행> 입력 형식 오류: 각 줄에 3개의 숫자를 공백으로 구분해 입력하세요.
+1행> 입력 형식 오류: 숫자로 변환할 수 없는 값이 있습니다.
+1행> 입력 형식 오류: nan, inf 대신 유한한 숫자를 입력하세요.
+1행> 2행> 3행> 
+필터 B (3줄 입력, 각 줄에 숫자 3개)
+1행> 2행> 3행> 
+=== 필터 저장 확인 ===
+
+[필터 A]
+0 1 0
+1 1 1
+0 1 0
+
+[필터 B]
+1 0 1
+0 1 0
+1 0 1
+
+패턴 (3줄 입력, 각 줄에 숫자 3개)
+1행> 2행> 3행> 
+=== MAC 결과 ===
+A 점수: 1.0
+B 점수: 5.0
+판정 기준: 두 점수 차이의 절댓값이 1e-09 미만이면 판정 불가(UNDECIDED)입니다.
+판정: B
+
+=== 성능 분석 ===
+측정 대상: 필터 1개에 대한 MAC 함수 호출
+크기       평균 시간(ms)    MAC 횟수(N²)    반복 횟수
+------------------------------------------------------------
+3×3           0.000648               9         1000
+
+=== Mini NPU Simulator ===
+1. 사용자 입력 (3×3)
+2. data.json 분석
+3. 생성 패턴 분석
+0. 종료
+선택: 프로그램을 종료합니다.
